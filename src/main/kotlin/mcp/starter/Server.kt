@@ -122,6 +122,15 @@ private fun registerTools(server: Server) {
         val message = request.arguments?.get("message")?.jsonPrimitive?.content ?: ""
         CallToolResult(content = listOf(TextContent(message)))
     }
+
+    // Reverse tool
+    server.addTool(
+        name = "reverse",
+        description = "Reverse a string"
+    ) { request ->
+        val text = request.arguments?.get("text")?.jsonPrimitive?.content ?: ""
+        CallToolResult(content = listOf(TextContent(text.reversed())))
+    }
 }
 
 /**
