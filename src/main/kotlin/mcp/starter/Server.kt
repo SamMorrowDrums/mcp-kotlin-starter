@@ -2,7 +2,7 @@
  * MCP Kotlin Starter - Server
  *
  * Creates and configures the MCP server by combining
- * tools, resources, and prompts.
+ * tools, resources, and prompts with tool annotations.
  *
  * @see https://modelcontextprotocol.io/
  */
@@ -21,7 +21,22 @@ import io.modelcontextprotocol.kotlin.sdk.types.Role
 import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
 import io.modelcontextprotocol.kotlin.sdk.types.TextContent
 import io.modelcontextprotocol.kotlin.sdk.types.TextResourceContents
+import io.modelcontextprotocol.kotlin.sdk.types.ToolAnnotations
 import kotlinx.serialization.json.*
+
+// =============================================================================
+// TOOL ANNOTATIONS - Every tool SHOULD have annotations for AI assistants
+//
+// WHY ANNOTATIONS MATTER:
+// Annotations enable MCP client applications to understand the risk level of
+// tool calls. Clients can use these hints to implement safety policies.
+//
+// ANNOTATION FIELDS:
+// - readOnlyHint: Tool only reads data, doesn't modify state
+// - destructiveHint: Tool can permanently delete or modify data
+// - idempotentHint: Repeated calls with same args have same effect
+// - openWorldHint: Tool accesses external systems (web, APIs, etc.)
+// =============================================================================
 
 /**
  * Creates and configures the MCP server with all features.
@@ -52,10 +67,17 @@ fun createServer(): Server {
  * Register all tools with the server.
  */
 private fun registerTools(server: Server) {
-    // Hello tool
+    // Hello tool - with annotations
     server.addTool(
         name = "hello",
-        description = "A friendly greeting tool that says hello to someone"
+        description = "A friendly greeting tool that says hello to someone",
+        toolAnnotations = ToolAnnotations(
+            title = "Say Hello",
+            readOnlyHint = true,
+            destructiveHint = false,
+            idempotentHint = true,
+            openWorldHint = false
+        )
     ) { request ->
         val name = request.arguments?.get("name")?.jsonPrimitive?.content ?: "World"
         CallToolResult(content = listOf(TextContent("Hello, $name! Welcome to MCP.")))
@@ -64,7 +86,14 @@ private fun registerTools(server: Server) {
     // Weather tool
     server.addTool(
         name = "get_weather",
-        description = "Get current weather for a location (simulated)"
+        description = "Get current weather for a location (simulated)",
+        toolAnnotations = ToolAnnotations(
+            title = "Get Weather",
+            readOnlyHint = true,
+            destructiveHint = false,
+            idempotentHint = false, // Results vary
+            openWorldHint = false
+        )
     ) { request ->
         val location = request.arguments?.get("location")?.jsonPrimitive?.content ?: "Unknown"
         val conditions = listOf("sunny", "cloudy", "rainy", "windy")
@@ -81,7 +110,14 @@ private fun registerTools(server: Server) {
     // Long task tool
     server.addTool(
         name = "long_task",
-        description = "A task that takes time and reports progress along the way"
+        description = "A task that takes time and reports progress along the way",
+        toolAnnotations = ToolAnnotations(
+            title = "Long Running Task",
+            readOnlyHint = true,
+            destructiveHint = false,
+            idempotentHint = true,
+            openWorldHint = false
+        )
     ) { request ->
         val taskName = request.arguments?.get("taskName")?.jsonPrimitive?.content ?: "unnamed"
         val steps = 5
@@ -97,7 +133,14 @@ private fun registerTools(server: Server) {
     // Calculate tool
     server.addTool(
         name = "calculate",
-        description = "Perform basic arithmetic operations"
+        description = "Perform basic arithmetic operations",
+        toolAnnotations = ToolAnnotations(
+            title = "Calculator",
+            readOnlyHint = true,
+            destructiveHint = false,
+            idempotentHint = true,
+            openWorldHint = false
+        )
     ) { request ->
         val a = request.arguments?.get("a")?.jsonPrimitive?.doubleOrNull ?: 0.0
         val b = request.arguments?.get("b")?.jsonPrimitive?.doubleOrNull ?: 0.0
@@ -117,7 +160,14 @@ private fun registerTools(server: Server) {
     // Echo tool
     server.addTool(
         name = "echo",
-        description = "Echo back the provided message"
+        description = "Echo back the provided message",
+        toolAnnotations = ToolAnnotations(
+            title = "Echo",
+            readOnlyHint = true,
+            destructiveHint = false,
+            idempotentHint = true,
+            openWorldHint = false
+        )
     ) { request ->
         val message = request.arguments?.get("message")?.jsonPrimitive?.content ?: ""
         CallToolResult(content = listOf(TextContent(message)))
