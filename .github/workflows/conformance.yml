@@ -35,7 +35,9 @@ jobs:
 
       - uses: SamMorrowDrums/mcp-conformance-action@v2
         with:
-          compare_ref: ${{ github.sha }}
+          # Only set compare_ref for push events (compare against self to just probe)
+          # For PRs, auto-detect merge-base with main
+          compare_ref: ${{ github.event_name == 'push' && github.sha || '' }}
           build_command: gradle fatJar
           configurations: |
             [
