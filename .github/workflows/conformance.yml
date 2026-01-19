@@ -35,6 +35,8 @@ jobs:
 
       - uses: SamMorrowDrums/mcp-conformance-action@v2
         with:
+          compare_ref: ${{ github.sha }}
+          build_command: gradle fatJar
           configurations: |
             [
               {
