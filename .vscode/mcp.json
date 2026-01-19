@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "mcp-kotlin-starter": {
+      "command": "java",
+      "args": ["-jar", "${workspaceFolder}/build/libs/mcp-kotlin-starter-1.0.0-all.jar"]
+    }
+  }
+}

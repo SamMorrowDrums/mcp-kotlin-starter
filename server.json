@@ -1,0 +1,30 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "mcp-kotlin-starter",
+  "description": "A Kotlin MCP server template demonstrating tools, prompts, and resources",
+  "title": "MCP Kotlin Starter",
+  "repository": {
+    "url": "https://github.com/SamMorrowDrums/mcp-kotlin-starter",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registryType": "maven",
+      "identifier": "com.example:mcp-kotlin-starter",
+      "transport": {
+        "type": "stdio"
+      },
+      "runtimeHint": "java",
+      "runtime": "java",
+      "command": ["java", "-jar", "mcp-kotlin-starter.jar"]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "sse",
+      "url": "http://localhost:3000/mcp",
+      "description": "Local HTTP server (run `./gradlew runHttp` first)"
+    }
+  ]
+}
