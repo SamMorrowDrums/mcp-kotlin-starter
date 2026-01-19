@@ -63,6 +63,9 @@ fun createServer(): Server {
     return server
 }
 
+// Track whether bonus tool has been loaded (for dynamic tool demo)
+private var bonusToolLoaded = false
+
 /**
  * Register all tools with the server.
  */
@@ -81,6 +84,58 @@ private fun registerTools(server: Server) {
     ) { request ->
         val name = request.arguments?.get("name")?.jsonPrimitive?.content ?: "World"
         CallToolResult(content = listOf(TextContent("Hello, $name! Welcome to MCP.")))
+    }
+
+    // ==========================================================================
+    // DYNAMIC TOOL LOADING
+    // This demonstrates adding tools at runtime. When load_bonus_tool is called,
+    // it registers a new tool (bonus_calculator) and the server notifies clients
+    // via tools/list_changed notification (enabled by listChanged = true capability).
+    // ==========================================================================
+    
+    // Load bonus tool - demonstrates dynamic tool loading
+    server.addTool(
+        name = "load_bonus_tool",
+        description = "Dynamically loads an additional bonus calculator tool",
+        toolAnnotations = ToolAnnotations(
+            title = "Load Bonus Tool",
+            readOnlyHint = false, // Modifies server state
+            destructiveHint = false,
+            idempotentHint = true, // Safe to call multiple times
+            openWorldHint = false
+        )
+    ) { _ ->
+        if (bonusToolLoaded) {
+            CallToolResult(content = listOf(TextContent("Bonus tool is already loaded! Use 'bonus_calculator' tool.")))
+        } else {
+            // Register the bonus tool dynamically
+            server.addTool(
+                name = "bonus_calculator",
+                description = "A dynamically loaded tool that calculates percentage bonuses",
+                toolAnnotations = ToolAnnotations(
+                    title = "Bonus Calculator",
+                    readOnlyHint = true,
+                    destructiveHint = false,
+                    idempotentHint = true,
+                    openWorldHint = false
+                )
+            ) { bonusRequest ->
+                val amount = bonusRequest.arguments?.get("amount")?.jsonPrimitive?.doubleOrNull ?: 0.0
+                val percentage = bonusRequest.arguments?.get("percentage")?.jsonPrimitive?.doubleOrNull ?: 10.0
+                val bonus = amount * (percentage / 100.0)
+                val total = amount + bonus
+                CallToolResult(content = listOf(TextContent(
+                    "Amount: $amount, Bonus ($percentage%): $bonus, Total: $total"
+                )))
+            }
+            bonusToolLoaded = true
+            // Note: The server automatically sends tools/list_changed notification
+            // because we enabled listChanged = true in ServerCapabilities.Tools
+            CallToolResult(content = listOf(TextContent(
+                "Bonus tool loaded successfully! The 'bonus_calculator' tool is now available. " +
+                "Call it with 'amount' and 'percentage' arguments."
+            )))
+        }
     }
 
     // Weather tool
