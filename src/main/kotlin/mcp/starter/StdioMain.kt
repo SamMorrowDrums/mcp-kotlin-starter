@@ -1,34 +1,37 @@
 /**
- * MCP Kotlin Starter - stdio Transport
+ * MCP Kotlin Starter - stdio transport
  *
- * This entrypoint runs the MCP server using stdio transport,
- * which is ideal for local development and CLI tool integration.
+ * This entry point runs the MCP server using standard input/output,
+ * suitable for CLI integration and local development.
  *
- * Usage:
- *   ./gradlew runStdio
- *   java -jar build/libs/mcp-kotlin-starter-all.jar
- *
- * @see https://modelcontextprotocol.io/docs/develop/transports#stdio
+ * @see https://modelcontextprotocol.io/
  */
 
 package mcp.starter
 
 import io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
+import kotlinx.io.asSink
+import kotlinx.io.asSource
+import kotlinx.io.buffered
 
-fun main() = runBlocking {
+/**
+ * Main entry point for stdio transport.
+ */
+fun main() {
     val server = createServer()
-    
-    // Create stdio transport
-    val transport = StdioServerTransport()
-    
-    // Connect the server to the transport
-    server.connect(transport)
-    
-    // Log to stderr so it doesn't interfere with stdio protocol
-    System.err.println("MCP Kotlin Starter running on stdio")
-    System.err.println("Press Ctrl+C to exit")
-    
-    // Keep the server running
-    transport.awaitClose()
+    val transport = StdioServerTransport(
+        inputStream = System.`in`.asSource().buffered(),
+        outputStream = System.out.asSink().buffered()
+    )
+
+    runBlocking {
+        server.createSession(transport)
+        val done = Job()
+        server.onClose {
+            done.complete()
+        }
+        done.join()
+    }
 }

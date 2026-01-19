@@ -19,8 +19,9 @@ dependencies {
     implementation("io.modelcontextprotocol:kotlin-sdk:$mcpVersion")
     
     // Ktor for HTTP transport
-    implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation("io.ktor:ktor-server-cio:$ktorVersion")
     implementation("io.ktor:ktor-server-sse:$ktorVersion")
+    implementation("io.ktor:ktor-server-cors:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     
@@ -29,6 +30,9 @@ dependencies {
     
     // Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+    
+    // IO (for Source/Sink)
+    implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.8.0")
     
     // Logging
     implementation("ch.qos.logback:logback-classic:1.5.15")

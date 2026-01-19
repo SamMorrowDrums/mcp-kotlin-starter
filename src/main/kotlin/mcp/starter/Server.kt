@@ -11,75 +11,35 @@ package mcp.starter
 
 import io.modelcontextprotocol.kotlin.sdk.server.Server
 import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
-import io.modelcontextprotocol.kotlin.sdk.Implementation
-import io.modelcontextprotocol.kotlin.sdk.ServerCapabilities
-import io.modelcontextprotocol.kotlin.sdk.Tool
-import io.modelcontextprotocol.kotlin.sdk.TextContent
-import io.modelcontextprotocol.kotlin.sdk.TextResourceContents
-import io.modelcontextprotocol.kotlin.sdk.ReadResourceResult
-import io.modelcontextprotocol.kotlin.sdk.GetPromptResult
-import io.modelcontextprotocol.kotlin.sdk.PromptMessage
-import io.modelcontextprotocol.kotlin.sdk.Role
+import io.modelcontextprotocol.kotlin.sdk.types.CallToolResult
+import io.modelcontextprotocol.kotlin.sdk.types.GetPromptResult
+import io.modelcontextprotocol.kotlin.sdk.types.Implementation
+import io.modelcontextprotocol.kotlin.sdk.types.PromptArgument
+import io.modelcontextprotocol.kotlin.sdk.types.PromptMessage
+import io.modelcontextprotocol.kotlin.sdk.types.ReadResourceResult
+import io.modelcontextprotocol.kotlin.sdk.types.Role
+import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
+import io.modelcontextprotocol.kotlin.sdk.types.TextContent
+import io.modelcontextprotocol.kotlin.sdk.types.TextResourceContents
 import kotlinx.serialization.json.*
-
-/**
- * Server instructions for AI assistants.
- */
-private val SERVER_INSTRUCTIONS = """
-# MCP Kotlin Starter Server
-
-A demonstration MCP server showcasing Kotlin SDK capabilities.
-
-## Available Tools
-
-### Greeting & Demos
-- **hello**: Simple greeting - use to test connectivity
-- **get_weather**: Returns simulated weather data
-- **long_task**: Demonstrates progress reporting (takes ~1 second)
-
-### Calculations
-- **calculate**: Perform arithmetic operations (add, subtract, multiply, divide)
-
-### Utility
-- **echo**: Echo back the provided message
-
-## Available Resources
-
-- **info://about**: Server information
-- **doc://example**: Example markdown document
-- **config://settings**: Server configuration as JSON
-
-## Available Prompts
-
-- **greet**: Generates a personalized greeting
-- **code_review**: Structured code review prompt
-
-## Recommended Workflows
-
-1. **Testing Connection**: Call `hello` with your name to verify the server is responding
-2. **Weather Demo**: Call `get_weather` with a location to see structured output
-3. **Calculator**: Call `calculate` with numbers and an operation
-""".trimIndent()
 
 /**
  * Creates and configures the MCP server with all features.
  */
 fun createServer(): Server {
     val server = Server(
-        serverInfo = Implementation(
+        Implementation(
             name = "mcp-kotlin-starter",
             version = "1.0.0"
         ),
-        options = ServerOptions(
+        ServerOptions(
             capabilities = ServerCapabilities(
                 tools = ServerCapabilities.Tools(listChanged = true),
                 resources = ServerCapabilities.Resources(subscribe = true, listChanged = true),
                 prompts = ServerCapabilities.Prompts(listChanged = true)
             )
         )
-    ) {
-        SERVER_INSTRUCTIONS
-    }
+    )
 
     registerTools(server)
     registerResources(server)
@@ -97,8 +57,8 @@ private fun registerTools(server: Server) {
         name = "hello",
         description = "A friendly greeting tool that says hello to someone"
     ) { request ->
-        val name = request.arguments["name"]?.jsonPrimitive?.content ?: "World"
-        listOf(TextContent("Hello, $name! Welcome to MCP."))
+        val name = request.arguments?.get("name")?.jsonPrimitive?.content ?: "World"
+        CallToolResult(content = listOf(TextContent("Hello, $name! Welcome to MCP.")))
     }
 
     // Weather tool
@@ -106,7 +66,7 @@ private fun registerTools(server: Server) {
         name = "get_weather",
         description = "Get current weather for a location (simulated)"
     ) { request ->
-        val location = request.arguments["location"]?.jsonPrimitive?.content ?: "Unknown"
+        val location = request.arguments?.get("location")?.jsonPrimitive?.content ?: "Unknown"
         val conditions = listOf("sunny", "cloudy", "rainy", "windy")
         val weather = buildJsonObject {
             put("location", location)
@@ -115,7 +75,7 @@ private fun registerTools(server: Server) {
             put("conditions", conditions.random())
             put("humidity", (40..80).random())
         }
-        listOf(TextContent(Json.encodeToString(JsonObject.serializer(), weather)))
+        CallToolResult(content = listOf(TextContent(Json.encodeToString(JsonObject.serializer(), weather))))
     }
 
     // Long task tool
@@ -123,7 +83,7 @@ private fun registerTools(server: Server) {
         name = "long_task",
         description = "A task that takes time and reports progress along the way"
     ) { request ->
-        val taskName = request.arguments["taskName"]?.jsonPrimitive?.content ?: "unnamed"
+        val taskName = request.arguments?.get("taskName")?.jsonPrimitive?.content ?: "unnamed"
         val steps = 5
         
         // Simulate progress (in real implementation, send progress notifications)
@@ -131,7 +91,7 @@ private fun registerTools(server: Server) {
             kotlinx.coroutines.delay(200) // 200ms per step
         }
         
-        listOf(TextContent("Task \"$taskName\" completed successfully after $steps steps!"))
+        CallToolResult(content = listOf(TextContent("Task \"$taskName\" completed successfully after $steps steps!")))
     }
 
     // Calculate tool
@@ -139,9 +99,9 @@ private fun registerTools(server: Server) {
         name = "calculate",
         description = "Perform basic arithmetic operations"
     ) { request ->
-        val a = request.arguments["a"]?.jsonPrimitive?.doubleOrNull ?: 0.0
-        val b = request.arguments["b"]?.jsonPrimitive?.doubleOrNull ?: 0.0
-        val operation = request.arguments["operation"]?.jsonPrimitive?.content ?: "add"
+        val a = request.arguments?.get("a")?.jsonPrimitive?.doubleOrNull ?: 0.0
+        val b = request.arguments?.get("b")?.jsonPrimitive?.doubleOrNull ?: 0.0
+        val operation = request.arguments?.get("operation")?.jsonPrimitive?.content ?: "add"
         
         val result = when (operation) {
             "add" -> a + b
@@ -151,7 +111,7 @@ private fun registerTools(server: Server) {
             else -> Double.NaN
         }
         
-        listOf(TextContent("$a $operation $b = $result"))
+        CallToolResult(content = listOf(TextContent("$a $operation $b = $result")))
     }
 
     // Echo tool
@@ -159,8 +119,8 @@ private fun registerTools(server: Server) {
         name = "echo",
         description = "Echo back the provided message"
     ) { request ->
-        val message = request.arguments["message"]?.jsonPrimitive?.content ?: ""
-        listOf(TextContent(message))
+        val message = request.arguments?.get("message")?.jsonPrimitive?.content ?: ""
+        CallToolResult(content = listOf(TextContent(message)))
     }
 }
 
@@ -174,12 +134,10 @@ private fun registerResources(server: Server) {
         name = "About",
         description = "Information about this MCP server",
         mimeType = "text/plain"
-    ) {
+    ) { request ->
         ReadResourceResult(
             contents = listOf(
                 TextResourceContents(
-                    uri = "info://about",
-                    mimeType = "text/plain",
                     text = """
                         MCP Kotlin Starter v1.0.0
                         
@@ -190,7 +148,9 @@ private fun registerResources(server: Server) {
                         - Multiple transport options (stdio, HTTP)
                         
                         For more information, visit: https://modelcontextprotocol.io
-                    """.trimIndent()
+                    """.trimIndent(),
+                    uri = request.uri,
+                    mimeType = "text/plain"
                 )
             )
         )
@@ -202,12 +162,10 @@ private fun registerResources(server: Server) {
         name = "Example Document",
         description = "An example markdown document",
         mimeType = "text/markdown"
-    ) {
+    ) { request ->
         ReadResourceResult(
             contents = listOf(
                 TextResourceContents(
-                    uri = "doc://example",
-                    mimeType = "text/markdown",
                     text = """
                         # Example Document
                         
@@ -227,7 +185,9 @@ private fun registerResources(server: Server) {
                         
                         - [MCP Documentation](https://modelcontextprotocol.io)
                         - [Kotlin SDK](https://github.com/modelcontextprotocol/kotlin-sdk)
-                    """.trimIndent()
+                    """.trimIndent(),
+                    uri = request.uri,
+                    mimeType = "text/markdown"
                 )
             )
         )
@@ -239,7 +199,7 @@ private fun registerResources(server: Server) {
         name = "Server Settings",
         description = "Server configuration settings",
         mimeType = "application/json"
-    ) {
+    ) { request ->
         val settings = buildJsonObject {
             put("version", "1.0.0")
             put("name", "mcp-kotlin-starter")
@@ -256,9 +216,9 @@ private fun registerResources(server: Server) {
         ReadResourceResult(
             contents = listOf(
                 TextResourceContents(
-                    uri = "config://settings",
-                    mimeType = "application/json",
-                    text = Json.encodeToString(JsonObject.serializer(), settings)
+                    text = Json.encodeToString(JsonObject.serializer(), settings),
+                    uri = request.uri,
+                    mimeType = "application/json"
                 )
             )
         )
@@ -272,7 +232,11 @@ private fun registerPrompts(server: Server) {
     // Greet prompt
     server.addPrompt(
         name = "greet",
-        description = "Generate a greeting in a specific style"
+        description = "Generate a greeting in a specific style",
+        arguments = listOf(
+            PromptArgument(name = "name", description = "Name to greet", required = true),
+            PromptArgument(name = "style", description = "Greeting style (formal, casual, enthusiastic)", required = false)
+        )
     ) { request ->
         val name = request.arguments?.get("name") ?: "friend"
         val style = request.arguments?.get("style") ?: "casual"
@@ -288,7 +252,7 @@ private fun registerPrompts(server: Server) {
             description = "Greeting prompt for $name in $style style",
             messages = listOf(
                 PromptMessage(
-                    role = Role.user,
+                    role = Role.User,
                     content = TextContent(text)
                 )
             )
@@ -298,7 +262,12 @@ private fun registerPrompts(server: Server) {
     // Code review prompt
     server.addPrompt(
         name = "code_review",
-        description = "Request a code review with specific focus areas"
+        description = "Request a code review with specific focus areas",
+        arguments = listOf(
+            PromptArgument(name = "code", description = "Code to review", required = true),
+            PromptArgument(name = "language", description = "Programming language", required = false),
+            PromptArgument(name = "focus", description = "Focus area (security, performance, readability, all)", required = false)
+        )
     ) { request ->
         val code = request.arguments?.get("code") ?: ""
         val language = request.arguments?.get("language") ?: "unknown"
@@ -323,7 +292,7 @@ private fun registerPrompts(server: Server) {
             description = "Code review prompt with $focus focus",
             messages = listOf(
                 PromptMessage(
-                    role = Role.user,
+                    role = Role.User,
                     content = TextContent(text)
                 )
             )
