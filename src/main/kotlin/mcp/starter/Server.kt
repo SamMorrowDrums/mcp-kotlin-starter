@@ -404,8 +404,11 @@ private fun registerResources(server: Server) {
     }
 
     // Resource templates - using pattern-matching URIs
-    // Note: The Kotlin SDK 0.8.1 may not have addResourceTemplate method
-    // These are implemented as regular resources with dynamic URI handling
+    // Note: The Kotlin SDK 0.8.1 does not expose an addResourceTemplate method.
+    // Resource templates are implemented as regular resources with dynamic URI handling.
+    // These resources can handle parameterized URIs by extracting parameters from the URI string.
+    // For proper resource template support, the SDK would need to expose addResourceTemplate or
+    // a similar method to register URI patterns like "greeting://{name}".
     
     // Personalized Greeting template (greeting://{name})
     server.addResource(
