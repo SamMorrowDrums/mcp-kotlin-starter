@@ -27,6 +27,15 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+          validate-wrappers: false
+
+      - name: Generate Gradle Wrapper if missing
+        run: |
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+            gradle wrapper --gradle-version=8.5
+          fi
 
       - name: Download dependencies
         run: ./gradlew dependencies --no-daemon
