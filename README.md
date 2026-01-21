@@ -28,6 +28,13 @@ A feature-complete Model Context Protocol (MCP) server template in Kotlin. This 
 | **Prompts** | `greet` | Greeting in various styles |
 | | `code_review` | Code review with focus areas |
 
+## ⚠️ Known Limitations
+
+The Kotlin MCP SDK (v0.8.1) has some limitations. See [SDK_LIMITATIONS.md](SDK_LIMITATIONS.md) for full details:
+
+- **Resource Templates**: The SDK doesn't support `addResourceTemplate()`. Parameterized resources use manual URI parsing.
+- **Prompt Titles**: The `addPrompt()` method doesn't accept a `title` field.
+
 ## 🚀 Quick Start
 
 ### Prerequisites

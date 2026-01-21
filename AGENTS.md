@@ -36,6 +36,7 @@ This file provides context for AI coding agents working in this repository.
 ├── settings.gradle.kts         # Project settings
 ├── gradlew / gradlew.bat       # Gradle wrapper
 ├── server.json                 # MCP server configuration
+├── SDK_LIMITATIONS.md          # Known SDK limitations and workarounds
 ├── src/
 │   └── main/
 │       └── kotlin/
@@ -175,9 +176,20 @@ server.addPrompt(
 }
 ```
 
+## Known SDK Limitations
+
+The Kotlin MCP SDK (v0.8.1) has some limitations compared to other MCP implementations. See [SDK_LIMITATIONS.md](SDK_LIMITATIONS.md) for details:
+
+1. **No Resource Templates Support**: The SDK doesn't expose `addResourceTemplate()`. Resources with URI parameters (like `greeting://{name}`) must be implemented using regular `addResource()` with manual URI parsing.
+
+2. **No Prompt Title Field**: The `addPrompt()` method doesn't support a `title` parameter. Only `name`, `description`, and `arguments` are available.
+
+These limitations are documented in the code with workarounds where possible.
+
 ## Documentation Links
 
 - [MCP Specification](https://modelcontextprotocol.io/)
 - [Kotlin SDK](https://github.com/modelcontextprotocol/kotlin-sdk)
 - [Building Servers](https://modelcontextprotocol.io/docs/develop/build-server)
 - [Ktor Documentation](https://ktor.io/docs/)
+- [SDK Limitations](SDK_LIMITATIONS.md)
