@@ -55,7 +55,9 @@ fun createServer(): Server {
                 prompts = ServerCapabilities.Prompts(listChanged = true)
             )
         )
-    )
+    ) {
+        "An MCP server demonstrating tools, resources, and prompts. Includes dynamic tool loading and resource templates."
+    }
 
     registerTools(server)
     registerResources(server)
@@ -79,7 +81,6 @@ private fun registerTools(server: Server) {
             properties = buildJsonObject {
                 put("name", buildJsonObject {
                     put("type", "string")
-                    put("title", "Name")
                     put("description", "Name of the person to greet")
                 })
             },
@@ -157,7 +158,6 @@ private fun registerTools(server: Server) {
             properties = buildJsonObject {
                 put("city", buildJsonObject {
                     put("type", "string")
-                    put("title", "City")
                     put("description", "City name to get weather for")
                 })
             },
@@ -191,12 +191,10 @@ private fun registerTools(server: Server) {
             properties = buildJsonObject {
                 put("taskName", buildJsonObject {
                     put("type", "string")
-                    put("title", "Task Name")
                     put("description", "Name for this task")
                 })
                 put("steps", buildJsonObject {
                     put("type", "integer")
-                    put("title", "Steps")
                     put("description", "Number of steps to simulate")
                     put("default", 5)
                 })
@@ -230,12 +228,10 @@ private fun registerTools(server: Server) {
             properties = buildJsonObject {
                 put("prompt", buildJsonObject {
                     put("type", "string")
-                    put("title", "Prompt")
                     put("description", "The question or prompt to send to the LLM")
                 })
                 put("maxTokens", buildJsonObject {
                     put("type", "integer")
-                    put("title", "Max Tokens")
                     put("description", "Maximum tokens in response")
                     put("default", 100)
                 })
@@ -244,10 +240,10 @@ private fun registerTools(server: Server) {
         ),
         toolAnnotations = ToolAnnotations(
             title = "Ask LLM",
-            readOnlyHint = false, // Depends on external LLM
+            readOnlyHint = true,
             destructiveHint = false,
-            idempotentHint = false, // LLM responses may vary
-            openWorldHint = true // Accesses external system
+            idempotentHint = false,
+            openWorldHint = false
         )
     ) { request ->
         val prompt = request.arguments?.get("prompt")?.jsonPrimitive?.content ?: ""
@@ -269,12 +265,10 @@ private fun registerTools(server: Server) {
             properties = buildJsonObject {
                 put("action", buildJsonObject {
                     put("type", "string")
-                    put("title", "Action")
                     put("description", "Description of the action to confirm")
                 })
                 put("destructive", buildJsonObject {
                     put("type", "boolean")
-                    put("title", "Destructive")
                     put("description", "Whether the action is destructive")
                     put("default", false)
                 })
@@ -283,9 +277,9 @@ private fun registerTools(server: Server) {
         ),
         toolAnnotations = ToolAnnotations(
             title = "Confirm Action",
-            readOnlyHint = false, // Involves user interaction
+            readOnlyHint = true,
             destructiveHint = false,
-            idempotentHint = true,
+            idempotentHint = false,
             openWorldHint = false
         )
     ) { request ->
@@ -309,7 +303,6 @@ private fun registerTools(server: Server) {
             properties = buildJsonObject {
                 put("question", buildJsonObject {
                     put("type", "string")
-                    put("title", "Question")
                     put("description", "The question to ask the user")
                 })
             },
@@ -317,10 +310,10 @@ private fun registerTools(server: Server) {
         ),
         toolAnnotations = ToolAnnotations(
             title = "Get Feedback",
-            readOnlyHint = false, // Involves user interaction
+            readOnlyHint = true,
             destructiveHint = false,
-            idempotentHint = false, // User responses may vary
-            openWorldHint = false
+            idempotentHint = false,
+            openWorldHint = true
         )
     ) { request ->
         val question = request.arguments?.get("question")?.jsonPrimitive?.content ?: ""
