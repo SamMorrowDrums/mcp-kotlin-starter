@@ -325,6 +325,15 @@ private fun registerTools(server: Server) {
             "In a real implementation, this would use the MCP roots API to request user feedback."
         )))
     }
+
+    // Reverse tool
+    server.addTool(
+        name = "reverse",
+        description = "Reverse a string"
+    ) { request ->
+        val text = request.arguments?.get("text")?.jsonPrimitive?.content ?: ""
+        CallToolResult(content = listOf(TextContent(text.reversed())))
+    }
 }
 
 /**
