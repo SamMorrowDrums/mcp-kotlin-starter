@@ -1,11 +1,11 @@
 # MCP Kotlin SDK Limitations
 
-This document tracks limitations in the Kotlin MCP SDK (version 0.8.1) that prevent full alignment with the [CANONICAL_INTERFACE.md](https://github.com/SamMorrowDrums/mcp-starters/blob/main/CANONICAL_INTERFACE.md).
+This document tracks limitations in the Kotlin MCP SDK (version 0.8.4) that prevent full alignment with the [CANONICAL_INTERFACE.md](https://github.com/SamMorrowDrums/mcp-starters/blob/main/CANONICAL_INTERFACE.md).
 
 ## Resource Templates
 
 ### Issue
-The Kotlin SDK does not expose an `addResourceTemplate()` method or equivalent API for registering URI template patterns.
+The Kotlin SDK 0.8.4 does not expose a public `addResourceTemplate()` method or equivalent API for registering URI template patterns.
 
 ### Impact
 Resources that should appear in `resourceTemplates` (like `greeting://{name}` and `item://{id}`) instead appear as static resources in the `resources` list.
