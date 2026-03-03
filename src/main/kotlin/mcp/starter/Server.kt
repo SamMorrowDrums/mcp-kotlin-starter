@@ -93,7 +93,7 @@ A demonstration MCP server showcasing Kotlin SDK capabilities.
 
 ## Available Prompts
 
-- **greet**: Generates a personalized greeting
+- **greeting**: Generates a personalized greeting
 - **code_review**: Structured code review prompt
 
 ## Recommended Workflows
