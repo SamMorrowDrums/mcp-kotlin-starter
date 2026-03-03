@@ -14,9 +14,15 @@ import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
 import io.modelcontextprotocol.kotlin.sdk.types.CallToolResult
 import io.modelcontextprotocol.kotlin.sdk.types.GetPromptResult
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
+import io.modelcontextprotocol.kotlin.sdk.types.ListResourceTemplatesRequest
+import io.modelcontextprotocol.kotlin.sdk.types.ListResourceTemplatesResult
+import io.modelcontextprotocol.kotlin.sdk.types.Method
+import io.modelcontextprotocol.kotlin.sdk.types.Prompt
 import io.modelcontextprotocol.kotlin.sdk.types.PromptArgument
 import io.modelcontextprotocol.kotlin.sdk.types.PromptMessage
+import io.modelcontextprotocol.kotlin.sdk.types.ReadResourceRequest
 import io.modelcontextprotocol.kotlin.sdk.types.ReadResourceResult
+import io.modelcontextprotocol.kotlin.sdk.types.ResourceTemplate
 import io.modelcontextprotocol.kotlin.sdk.types.Role
 import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
 import io.modelcontextprotocol.kotlin.sdk.types.TextContent
@@ -113,8 +119,140 @@ Use these hints to make informed decisions about tool usage.
     registerTools(server)
     registerResources(server)
     registerPrompts(server)
+    registerResourceTemplateHandlers(server)
 
     return server
+}
+
+// Resource templates returned by resources/templates/list
+private val RESOURCE_TEMPLATES = listOf(
+    ResourceTemplate(
+        uriTemplate = "greeting://{name}",
+        name = "Personalized Greeting",
+        description = "A personalized greeting for a specific person",
+        mimeType = "text/plain"
+    ),
+    ResourceTemplate(
+        uriTemplate = "item://{id}",
+        name = "Item Data",
+        description = "Data for a specific item by ID",
+        mimeType = "application/json"
+    )
+)
+
+/**
+ * Set up session-level handlers for resource templates.
+ * The Kotlin SDK does not yet expose an addResourceTemplate API, so we override
+ * the resources/templates/list and resources/read handlers on each session.
+ */
+private fun registerResourceTemplateHandlers(server: Server) {
+    server.onConnect {
+        for ((_, session) in server.sessions) {
+            session.setRequestHandler<ListResourceTemplatesRequest>(
+                Method.Defined.ResourcesTemplatesList
+            ) { _, _ ->
+                ListResourceTemplatesResult(RESOURCE_TEMPLATES)
+            }
+
+            session.setRequestHandler<ReadResourceRequest>(
+                Method.Defined.ResourcesRead
+            ) { request, _ ->
+                handleReadResource(request)
+            }
+        }
+    }
+}
+
+/**
+ * Handle resource read requests for both static and template-based resources.
+ */
+private fun handleReadResource(request: ReadResourceRequest): ReadResourceResult {
+    val uri = request.params.uri
+
+    return when {
+        uri == "about://server" -> ReadResourceResult(
+            contents = listOf(
+                TextResourceContents(
+                    text = """
+                        MCP Kotlin Starter v1.0.0
+                        
+                        This is a feature-complete MCP server demonstrating:
+                        - Tools with structured output
+                        - Resources (static and dynamic)
+                        - Prompts with completions
+                        - Multiple transport options (stdio, HTTP)
+                        
+                        For more information, visit: https://modelcontextprotocol.io
+                    """.trimIndent(),
+                    uri = uri,
+                    mimeType = "text/plain"
+                )
+            )
+        )
+
+        uri == "doc://example" -> ReadResourceResult(
+            contents = listOf(
+                TextResourceContents(
+                    text = """
+                        # Example Document
+                        
+                        This is an example document served as an MCP resource.
+                        
+                        ## Features
+                        
+                        - **Bold text** and *italic text*
+                        - Lists and formatting
+                        - Code blocks
+                        
+                        ```kotlin
+                        val hello = "world"
+                        ```
+                        
+                        ## Links
+                        
+                        - [MCP Documentation](https://modelcontextprotocol.io)
+                        - [Kotlin SDK](https://github.com/modelcontextprotocol/kotlin-sdk)
+                    """.trimIndent(),
+                    uri = uri,
+                    mimeType = "text/plain"
+                )
+            )
+        )
+
+        uri.startsWith("greeting://") -> {
+            val name = uri.removePrefix("greeting://").takeIf { it.isNotEmpty() } ?: "friend"
+            ReadResourceResult(
+                contents = listOf(
+                    TextResourceContents(
+                        text = "Hello, $name! This is a personalized greeting just for you.",
+                        uri = uri,
+                        mimeType = "text/plain"
+                    )
+                )
+            )
+        }
+
+        uri.startsWith("item://") -> {
+            val id = uri.removePrefix("item://").takeIf { it.isNotEmpty() } ?: "0"
+            val itemData = buildJsonObject {
+                put("id", id)
+                put("name", "Item $id")
+                put("description", "This is a dynamically generated item with ID: $id")
+                put("created", "2024-01-01T00:00:00Z")
+            }
+            ReadResourceResult(
+                contents = listOf(
+                    TextResourceContents(
+                        text = Json.encodeToString(JsonObject.serializer(), itemData),
+                        uri = uri,
+                        mimeType = "application/json"
+                    )
+                )
+            )
+        }
+
+        else -> throw IllegalArgumentException("Resource not found: $uri")
+    }
 }
 
 // Track whether bonus tool has been loaded (for dynamic tool demo)
@@ -446,64 +584,6 @@ private fun registerResources(server: Server) {
             )
         )
     }
-
-    // Resource templates - using pattern-matching URIs
-    // Note: The Kotlin SDK 0.8.4 does not expose a public addResourceTemplate API.
-    // Resource templates are implemented as regular resources with dynamic URI handling.
-    // These resources can handle parameterized URIs by extracting parameters from the URI string.
-    // For proper resource template support, the SDK would need to expose addResourceTemplate or
-    // a similar method to register URI patterns like "greeting://{name}".
-    
-    // Personalized Greeting template (greeting://{name})
-    server.addResource(
-        uri = "greeting://",
-        name = "Personalized Greeting",
-        description = "A personalized greeting for a specific person",
-        mimeType = "text/plain"
-    ) { request ->
-        // Extract the name parameter from the URI
-        val uri = request.uri
-        val name = uri.removePrefix("greeting://").takeIf { it.isNotEmpty() } ?: "friend"
-        
-        ReadResourceResult(
-            contents = listOf(
-                TextResourceContents(
-                    text = "Hello, $name! This is a personalized greeting just for you.",
-                    uri = request.uri,
-                    mimeType = "text/plain"
-                )
-            )
-        )
-    }
-
-    // Item Data template (item://{id})
-    server.addResource(
-        uri = "item://",
-        name = "Item Data",
-        description = "Data for a specific item by ID",
-        mimeType = "application/json"
-    ) { request ->
-        // Extract the id parameter from the URI
-        val uri = request.uri
-        val id = uri.removePrefix("item://").takeIf { it.isNotEmpty() } ?: "0"
-        
-        val itemData = buildJsonObject {
-            put("id", id)
-            put("name", "Item $id")
-            put("description", "This is a dynamically generated item with ID: $id")
-            put("created", "2024-01-01T00:00:00Z")
-        }
-        
-        ReadResourceResult(
-            contents = listOf(
-                TextResourceContents(
-                    text = Json.encodeToString(JsonObject.serializer(), itemData),
-                    uri = request.uri,
-                    mimeType = "application/json"
-                )
-            )
-        )
-    }
 }
 
 /**
@@ -512,21 +592,24 @@ private fun registerResources(server: Server) {
 private fun registerPrompts(server: Server) {
     // Greet prompt
     server.addPrompt(
-        name = "greet",
-        description = "Generate a greeting message",
-        arguments = listOf(
-            PromptArgument(
-                name = "name",
-                title = "Name",
-                description = "Name of the person to greet",
-                required = true
+        Prompt(
+            name = "greet",
+            description = "Generate a greeting message",
+            arguments = listOf(
+                PromptArgument(
+                    name = "name",
+                    title = "Name",
+                    description = "Name of the person to greet",
+                    required = true
+                ),
+                PromptArgument(
+                    name = "style",
+                    title = "Style",
+                    description = "Greeting style (formal/casual)",
+                    required = false
+                )
             ),
-            PromptArgument(
-                name = "style",
-                title = "Style",
-                description = "Greeting style (formal/casual)",
-                required = false
-            )
+            title = "Greeting Prompt"
         )
     ) { request ->
         val name = request.arguments?.get("name") ?: "friend"
@@ -552,15 +635,18 @@ private fun registerPrompts(server: Server) {
 
     // Code review prompt
     server.addPrompt(
-        name = "code_review",
-        description = "Review code for potential improvements",
-        arguments = listOf(
-            PromptArgument(
-                name = "code",
-                title = "Code",
-                description = "The code to review",
-                required = true
-            )
+        Prompt(
+            name = "code_review",
+            description = "Review code for potential improvements",
+            arguments = listOf(
+                PromptArgument(
+                    name = "code",
+                    title = "Code",
+                    description = "The code to review",
+                    required = true
+                )
+            ),
+            title = "Code Review"
         )
     ) { request ->
         val code = request.arguments?.get("code") ?: ""
