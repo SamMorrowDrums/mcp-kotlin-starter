@@ -57,8 +57,8 @@ fun createServer(): Server {
         ServerOptions(
             capabilities = ServerCapabilities(
                 tools = ServerCapabilities.Tools(listChanged = true),
-                resources = ServerCapabilities.Resources(subscribe = true, listChanged = true),
-                prompts = ServerCapabilities.Prompts(listChanged = true)
+                resources = ServerCapabilities.Resources(subscribe = false, listChanged = false),
+                prompts = ServerCapabilities.Prompts(listChanged = false)
             )
         ),
         instructions = """
