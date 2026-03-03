@@ -54,10 +54,61 @@ fun createServer(): Server {
                 resources = ServerCapabilities.Resources(subscribe = true, listChanged = true),
                 prompts = ServerCapabilities.Prompts(listChanged = true)
             )
-        )
-    ) {
-        "An MCP server demonstrating tools, resources, and prompts. Includes dynamic tool loading and resource templates."
-    }
+        ),
+        instructions = """
+# MCP Kotlin Starter Server
+
+A demonstration MCP server showcasing Kotlin SDK capabilities.
+
+## Available Tools
+
+### Greeting & Demos
+- **hello**: Simple greeting - use to test connectivity
+- **get_weather**: Returns simulated weather data
+- **long_task**: Demonstrates progress reporting (takes ~5 seconds)
+
+### LLM Interaction
+- **ask_llm**: Invoke LLM sampling to ask questions (requires client support)
+
+### Dynamic Features
+- **load_bonus_tool**: Dynamically adds a calculator tool at runtime
+- **bonus_calculator**: Available after calling load_bonus_tool
+
+### Elicitation (User Input)
+- **confirm_action**: Demonstrates schema elicitation - requests user confirmation
+- **get_feedback**: Demonstrates URL elicitation - opens feedback form in browser
+
+## Available Resources
+
+- **about://server**: Server information
+- **doc://example**: Sample markdown document
+- **greeting://{name}**: Personalized greeting template
+- **item://{id}**: Item data by ID
+
+## Available Prompts
+
+- **greet**: Generates a personalized greeting
+- **code_review**: Structured code review prompt
+
+## Recommended Workflows
+
+1. **Testing Connection**: Call `hello` with your name to verify the server is responding
+2. **Weather Demo**: Call `get_weather` with a location to see structured output
+3. **Progress Demo**: Call `long_task` to see progress notifications
+4. **Dynamic Loading**: Call `load_bonus_tool`, then refresh tools to see `bonus_calculator`
+5. **Elicitation Demo**: Call `confirm_action` to see user confirmation flow
+6. **URL Elicitation**: Call `get_feedback` to open a feedback form
+
+## Tool Annotations
+
+All tools include annotations indicating:
+- Whether they modify state (readOnlyHint)
+- If they're safe to retry (idempotentHint)
+- Whether they access external systems (openWorldHint)
+
+Use these hints to make informed decisions about tool usage.
+""".trimIndent()
+    )
 
     registerTools(server)
     registerResources(server)
@@ -108,7 +159,7 @@ private fun registerTools(server: Server) {
     // Load bonus tool - demonstrates dynamic tool loading
     server.addTool(
         name = "load_bonus_tool",
-        description = "Dynamically loads an additional bonus calculator tool",
+        description = "Dynamically register a new bonus tool",
         toolAnnotations = ToolAnnotations(
             title = "Load Bonus Tool",
             readOnlyHint = false, // Modifies server state
@@ -397,7 +448,7 @@ private fun registerResources(server: Server) {
     }
 
     // Resource templates - using pattern-matching URIs
-    // Note: The Kotlin SDK 0.8.1 does not expose an addResourceTemplate method.
+    // Note: The Kotlin SDK 0.8.4 does not expose a public addResourceTemplate API.
     // Resource templates are implemented as regular resources with dynamic URI handling.
     // These resources can handle parameterized URIs by extracting parameters from the URI string.
     // For proper resource template support, the SDK would need to expose addResourceTemplate or
