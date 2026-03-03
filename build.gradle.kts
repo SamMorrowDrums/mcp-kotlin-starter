@@ -11,7 +11,7 @@ repositories {
     mavenCentral()
 }
 
-val mcpVersion = "0.8.1"
+val mcpVersion = "0.8.4"
 val ktorVersion = "3.0.3"
 
 dependencies {
