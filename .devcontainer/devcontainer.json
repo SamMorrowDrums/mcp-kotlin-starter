@@ -1,0 +1,23 @@
+{
+  "name": "MCP Kotlin Starter",
+  "image": "mcr.microsoft.com/devcontainers/java:1-21",
+  "features": {},
+  "postCreateCommand": "./gradlew shadowJar",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "mathiasfrohlich.Kotlin",
+        "fwcd.kotlin",
+        "vscjava.vscode-gradle"
+      ],
+      "settings": {}
+    }
+  },
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "MCP HTTP Server",
+      "onAutoForward": "notify"
+    }
+  }
+}
