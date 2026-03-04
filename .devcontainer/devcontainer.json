@@ -1,8 +1,8 @@
 {
   "name": "MCP Kotlin Starter",
-  "image": "mcr.microsoft.com/devcontainers/java:1-21",
+  "image": "mcr.microsoft.com/devcontainers/java:1-17",
   "features": {},
-  "postCreateCommand": "./gradlew shadowJar",
+  "postCreateCommand": "./gradlew fatJar",
   "customizations": {
     "vscode": {
       "extensions": [
