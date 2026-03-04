@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "./gradlew fatJar",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Run (stdio)",
+      "type": "shell",
+      "command": "./gradlew runStdio",
+      "group": "test"
+    },
+    {
+      "label": "Run (HTTP)",
+      "type": "shell",
+      "command": "./gradlew runHttp",
+      "group": "test"
+    },
+    {
+      "label": "Watch (continuous build)",
+      "type": "shell",
+      "command": "./gradlew fatJar --continuous",
+      "group": "build",
+      "isBackground": true
+    }
+  ]
+}
