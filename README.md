@@ -1,7 +1,7 @@
 # MCP Kotlin Starter
 
 [![CI](https://github.com/SamMorrowDrums/mcp-kotlin-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/SamMorrowDrums/mcp-kotlin-starter/actions/workflows/ci.yml)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-purple)](https://modelcontextprotocol.io/)
 
@@ -30,10 +30,10 @@ A feature-complete Model Context Protocol (MCP) server template in Kotlin. This 
 
 ## ⚠️ Known Limitations
 
-The Kotlin MCP SDK (v0.8.1) has some limitations. See [SDK_LIMITATIONS.md](SDK_LIMITATIONS.md) for full details:
+See [SDK_LIMITATIONS.md](SDK_LIMITATIONS.md) for the compatibility workarounds used with Kotlin MCP SDK v0.15.0:
 
-- **Resource Templates**: The SDK doesn't support `addResourceTemplate()`. Parameterized resources use manual URI parsing.
-- **Prompt Titles**: The `addPrompt()` method doesn't accept a `title` field.
+- **Resource Templates**: Parameterized resources use session-level handlers and manual URI parsing.
+- **Prompt Titles**: Titles are provided through the `addPrompt(Prompt(...))` overload.
 
 ## 🚀 Quick Start
 
@@ -63,8 +63,13 @@ cd mcp-kotlin-starter
 **HTTP transport** (for remote/web deployment):
 ```bash
 ./gradlew runHttp
-# Server runs on http://localhost:3000
+# SSE endpoint: http://localhost:3000/
 ```
+
+The SDK enables DNS rebinding protection by default. HTTP clients using localhost
+or loopback addresses work without additional configuration. For remote deployments,
+configure explicit `allowedHosts` and `allowedOrigins` in `HttpMain.kt`'s `mcp` call
+rather than disabling this protection.
 
 ## 🔧 VS Code Integration
 
@@ -102,12 +107,28 @@ This project includes VS Code configuration for seamless development:
 # Run tests
 ./gradlew test
 
+# Check or apply Kotlin formatting
+./gradlew ktfmtCheck
+./gradlew ktfmtFormat
+
 # Create a fat JAR
 ./gradlew fatJar
 
 # Clean build
 ./gradlew clean build
 ```
+
+Dependencies are pinned in `gradle.lockfile`. After changing dependency versions, refresh
+all resolved configurations and verify the build:
+
+```bash
+./gradlew dependencies build fatJar ktfmtCheck --write-locks
+```
+
+Dependabot checks Gradle dependencies (including plugins and the wrapper) and GitHub
+Actions weekly. Repository administrators must also enable the dependency graph,
+Dependabot alerts, and Dependabot security updates in GitHub's repository settings;
+`dependabot.yml` alone does not enable security alerts.
 
 ## 🔍 MCP Inspector
 

@@ -1,6 +1,22 @@
 # MCP Kotlin SDK Limitations
 
-This document tracks limitations in the Kotlin MCP SDK (version 0.8.4) that prevent full alignment with the [CANONICAL_INTERFACE.md](https://github.com/SamMorrowDrums/mcp-starters/blob/main/CANONICAL_INTERFACE.md).
+This document records historical limitations in Kotlin MCP SDK v0.8.4 and the
+compatibility approach used after upgrading to v0.15.0.
+
+## Current SDK (v0.15.0)
+
+- Resource templates are supported through `addResourceTemplate()`. This starter
+  retains its existing session-level `resources/templates/list` and `resources/read`
+  handlers and manual URI parsing to preserve its public interface during the
+  dependency upgrade. Templates are listed separately from static resources.
+- Prompt titles are supported through `addPrompt(Prompt(..., title = ...))`, which
+  this starter already uses. The convenience overload taking `name`, `description`,
+  and `arguments` does not have a `title` parameter.
+- Regression tests cover template discovery, static and parameterized resource
+  reads, prompt titles, and prompt argument handling.
+
+The sections below describe the historical limitations; they are not outstanding
+limitations of the current SDK.
 
 ## Resource Templates
 
@@ -10,8 +26,8 @@ The Kotlin SDK 0.8.4 does not expose a public `addResourceTemplate()` method or 
 ### Impact
 Resources that should appear in `resourceTemplates` (like `greeting://{name}` and `item://{id}`) instead appear as static resources in the `resources` list.
 
-### Current Workaround
-We use regular `addResource()` calls with base URIs (`greeting://` and `item://`) and extract parameters manually from incoming request URIs:
+### Historical Workaround
+Earlier versions used regular `addResource()` calls with base URIs (`greeting://` and `item://`) and extracted parameters manually from incoming request URIs:
 
 ```kotlin
 server.addResource(
@@ -62,8 +78,8 @@ Prompts cannot include a user-friendly title field as specified in the canonical
 - `code_review` should have title `"Code Review"`
 - `greet` should have title `"Greeting Prompt"`
 
-### Current State
-Only `name` and `description` are available:
+### Historical State
+The convenience overload only provided `name`, `description`, and `arguments`:
 ```kotlin
 server.addPrompt(
     name = "greet",

@@ -12,24 +12,22 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: '17'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.11'
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build
-        run: gradle build
+        run: ./gradlew build ktfmtCheck
 
       - name: Run tests
-        run: gradle test
+        run: ./gradlew test
 
       - name: Create fat JAR
-        run: gradle fatJar
+        run: ./gradlew fatJar

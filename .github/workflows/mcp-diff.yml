@@ -15,30 +15,32 @@ jobs:
   mcp-diff:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: '17'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
         with:
-          gradle-version: '8.11'
+          # Only used for comparison refs that predate the committed wrapper.
+          gradle-version: '8.14.5'
 
       - name: Build fat JAR
-        run: gradle fatJar
+        run: ./gradlew fatJar
 
-      - uses: SamMorrowDrums/mcp-server-diff@v2
+      - uses: SamMorrowDrums/mcp-server-diff@v3
         with:
           # Only set compare_ref for push events (compare against self to just probe)
           # For PRs, auto-detect merge-base with main
           compare_ref: ${{ github.event_name == 'push' && github.sha || '' }}
-          build_command: gradle fatJar
+          # Older comparison refs do not contain the wrapper JAR.
+          build_command: if [ -f gradle/wrapper/gradle-wrapper.jar ]; then ./gradlew fatJar; else gradle fatJar; fi
           configurations: |
             [
               {
