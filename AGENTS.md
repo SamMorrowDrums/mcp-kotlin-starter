@@ -22,10 +22,10 @@ This file provides context for AI coding agents working in this repository.
 
 ## Technology Stack
 
-- **Runtime**: Kotlin 2.2.0, JDK 17
-- **MCP SDK**: `io.modelcontextprotocol:kotlin-sdk:0.8.1`
-- **HTTP Server**: Ktor 3.0.3 with CIO engine
-- **Build Tool**: Gradle 8.11
+- **Runtime**: Kotlin 2.4.20, JDK 17
+- **MCP SDK**: `io.modelcontextprotocol:kotlin-sdk:0.15.0`
+- **HTTP Server**: Ktor 3.6.0 with CIO engine
+- **Build Tool**: Gradle 9.8.0 (committed, checksum-verified wrapper)
 - **Serialization**: kotlinx-serialization
 
 ## Project Structure
@@ -68,7 +68,7 @@ java -jar build/libs/mcp-kotlin-starter-1.0.0-all.jar
 
 # Run server (HTTP transport)
 ./gradlew runHttp
-# Server starts on http://localhost:3000/mcp
+# SSE endpoint: http://localhost:3000/
 ```
 
 ## Linting & Formatting
@@ -178,11 +178,11 @@ server.addPrompt(
 
 ## Known SDK Limitations
 
-The Kotlin MCP SDK (v0.8.1) has some limitations compared to other MCP implementations. See [SDK_LIMITATIONS.md](SDK_LIMITATIONS.md) for details:
+See [SDK_LIMITATIONS.md](SDK_LIMITATIONS.md) for the compatibility workarounds used with Kotlin MCP SDK v0.15.0:
 
-1. **No Resource Templates Support**: The SDK doesn't expose `addResourceTemplate()`. Resources with URI parameters (like `greeting://{name}`) must be implemented using regular `addResource()` with manual URI parsing.
+1. **Resource Templates**: SDK v0.15.0 exposes `addResourceTemplate()`. This starter retains its existing session-level handlers and manual URI parsing to preserve the public interface during dependency updates.
 
-2. **No Prompt Title Field**: The `addPrompt()` method doesn't support a `title` parameter. Only `name`, `description`, and `arguments` are available.
+2. **Prompt Titles**: Use the `addPrompt(Prompt(..., title = ...))` overload to include titles.
 
 These limitations are documented in the code with workarounds where possible.
 
