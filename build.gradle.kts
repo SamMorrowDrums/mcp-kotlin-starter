@@ -32,10 +32,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
 
     // Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
 
     // IO (for Source/Sink)
-    implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.9.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.9.2")
 
     // Logging
     implementation("ch.qos.logback:logback-classic:1.6.5")
