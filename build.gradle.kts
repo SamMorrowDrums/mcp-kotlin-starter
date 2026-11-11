@@ -11,7 +11,7 @@ version = "1.0.0"
 
 repositories { mavenCentral() }
 
-val mcpVersion = "0.15.0"
+val mcpVersion = "0.16.0"
 val ktorVersion = "3.6.0"
 
 dependencyLocking { lockAllConfigurations() }

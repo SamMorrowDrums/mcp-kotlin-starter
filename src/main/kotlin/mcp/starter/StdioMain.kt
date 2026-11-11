@@ -22,8 +22,8 @@ fun main() {
     val server = createServer()
     val transport =
         StdioServerTransport(
-            inputStream = System.`in`.asSource().buffered(),
-            outputStream = System.out.asSink().buffered(),
+            input = System.`in`.asSource().buffered(),
+            output = System.out.asSink().buffered(),
         )
 
     runBlocking {
