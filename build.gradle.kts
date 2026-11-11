@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "2.4.20"
-    kotlin("plugin.serialization") version "2.4.20"
+    kotlin("plugin.serialization") version "2.4.21"
     id("com.ncorti.ktfmt.gradle") version "0.27.0"
     application
 }
@@ -12,7 +12,7 @@ version = "1.0.0"
 repositories { mavenCentral() }
 
 val mcpVersion = "0.16.0"
-val ktorVersion = "3.6.0"
+val ktorVersion = "3.6.1"
 
 dependencyLocking { lockAllConfigurations() }
 
@@ -38,7 +38,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.9.2")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.6.5")
+    implementation("ch.qos.logback:logback-classic:1.6.6")
 
     // Testing
     testImplementation(platform("org.junit:junit-bom:6.1.3"))
