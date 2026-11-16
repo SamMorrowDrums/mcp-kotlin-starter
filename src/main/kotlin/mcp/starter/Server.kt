@@ -59,7 +59,7 @@ fun createServer(): Server {
                         resources =
                             ServerCapabilities.Resources(subscribe = false, listChanged = false),
                         prompts = ServerCapabilities.Prompts(listChanged = false),
-                    )
+                    ),
             ),
             instructions =
                 """
@@ -123,7 +123,7 @@ private fun registerResourceTemplateHandlers(server: Server) {
     server.onConnect {
         for ((_, session) in server.sessions) {
             session.setRequestHandler<ListResourceTemplatesRequest>(
-                Method.Defined.ResourcesTemplatesList
+                Method.Defined.ResourcesTemplatesList,
             ) { _, _ ->
                 ListResourceTemplatesResult(RESOURCE_TEMPLATES)
             }
@@ -162,8 +162,8 @@ private fun handleReadResource(request: ReadResourceRequest): ReadResourceResult
                                     .trimIndent(),
                             uri = uri,
                             mimeType = "text/plain",
-                        )
-                    )
+                        ),
+                    ),
             )
 
         uri == "doc://example" ->
@@ -195,8 +195,8 @@ private fun handleReadResource(request: ReadResourceRequest): ReadResourceResult
                                     .trimIndent(),
                             uri = uri,
                             mimeType = "text/plain",
-                        )
-                    )
+                        ),
+                    ),
             )
 
         uri.startsWith("greeting://") -> {
@@ -208,8 +208,8 @@ private fun handleReadResource(request: ReadResourceRequest): ReadResourceResult
                             text = "Hello, $name! This is a personalized greeting just for you.",
                             uri = uri,
                             mimeType = "text/plain",
-                        )
-                    )
+                        ),
+                    ),
             )
         }
 
@@ -228,8 +228,8 @@ private fun handleReadResource(request: ReadResourceRequest): ReadResourceResult
                             text = Json.encodeToString(JsonObject.serializer(), itemData),
                             uri = uri,
                             mimeType = "application/json",
-                        )
-                    )
+                        ),
+                    ),
             )
         }
 
@@ -297,8 +297,8 @@ private fun registerTools(server: Server) {
             CallToolResult(
                 content =
                     listOf(
-                        TextContent("Bonus tool is already loaded! Use 'bonus_calculator' tool.")
-                    )
+                        TextContent("Bonus tool is already loaded! Use 'bonus_calculator' tool."),
+                    ),
             )
         } else {
             // Register the bonus tool dynamically
@@ -324,9 +324,9 @@ private fun registerTools(server: Server) {
                     content =
                         listOf(
                             TextContent(
-                                "Amount: $amount, Bonus ($percentage%): $bonus, Total: $total"
-                            )
-                        )
+                                "Amount: $amount, Bonus ($percentage%): $bonus, Total: $total",
+                            ),
+                        ),
                 )
             }
             bonusToolLoaded = true
@@ -337,9 +337,9 @@ private fun registerTools(server: Server) {
                     listOf(
                         TextContent(
                             "Bonus tool loaded successfully! The 'bonus_calculator' tool is now available. " +
-                                "Call it with 'amount' and 'percentage' arguments."
-                        )
-                    )
+                                "Call it with 'amount' and 'percentage' arguments.",
+                        ),
+                    ),
             )
         }
     }
@@ -381,7 +381,7 @@ private fun registerTools(server: Server) {
             put("humidity", (40..80).random())
         }
         CallToolResult(
-            content = listOf(TextContent(Json.encodeToString(JsonObject.serializer(), weather)))
+            content = listOf(TextContent(Json.encodeToString(JsonObject.serializer(), weather))),
         )
     }
 
@@ -430,7 +430,9 @@ private fun registerTools(server: Server) {
 
         CallToolResult(
             content =
-                listOf(TextContent("Task \"$taskName\" completed successfully after $steps steps!"))
+                listOf(
+                    TextContent("Task \"$taskName\" completed successfully after $steps steps!"),
+                ),
         )
     }
 
@@ -479,9 +481,9 @@ private fun registerTools(server: Server) {
                 listOf(
                     TextContent(
                         "This tool would ask the LLM: \"$prompt\" (max tokens: $maxTokens). " +
-                            "In a real implementation, this would use the MCP sampling API to query the connected LLM."
-                    )
-                )
+                            "In a real implementation, this would use the MCP sampling API to query the connected LLM.",
+                    ),
+                ),
         )
     }
 
@@ -532,9 +534,9 @@ private fun registerTools(server: Server) {
                 listOf(
                     TextContent(
                         "Would you like to proceed with: \"$action\"?$warningMsg " +
-                            "In a real implementation, this would use the MCP roots API to request user confirmation."
-                    )
-                )
+                            "In a real implementation, this would use the MCP roots API to request user confirmation.",
+                    ),
+                ),
         )
     }
 
@@ -574,9 +576,9 @@ private fun registerTools(server: Server) {
                 listOf(
                     TextContent(
                         "Asking user: \"$question\". " +
-                            "In a real implementation, this would use the MCP roots API to request user feedback."
-                    )
-                )
+                            "In a real implementation, this would use the MCP roots API to request user feedback.",
+                    ),
+                ),
         )
     }
 }
@@ -609,8 +611,8 @@ private fun registerResources(server: Server) {
                                 .trimIndent(),
                         uri = request.uri,
                         mimeType = "text/plain",
-                    )
-                )
+                    ),
+                ),
         )
     }
 
@@ -649,8 +651,8 @@ private fun registerResources(server: Server) {
                                 .trimIndent(),
                         uri = request.uri,
                         mimeType = "text/plain",
-                    )
-                )
+                    ),
+                ),
         )
     }
 }
@@ -678,7 +680,7 @@ private fun registerPrompts(server: Server) {
                     ),
                 ),
             title = "Greeting Prompt",
-        )
+        ),
     ) { request ->
         val name = request.arguments?.get("name") ?: "friend"
         val style = request.arguments?.get("style") ?: "casual"
@@ -698,7 +700,7 @@ private fun registerPrompts(server: Server) {
                     PromptMessage(
                         role = Role.User,
                         content = TextContent(text),
-                    )
+                    ),
                 ),
         )
     }
@@ -715,10 +717,10 @@ private fun registerPrompts(server: Server) {
                         title = "Code",
                         description = "The code to review",
                         required = true,
-                    )
+                    ),
                 ),
             title = "Code Review",
-        )
+        ),
     ) { request ->
         val code = request.arguments?.get("code") ?: ""
 
@@ -745,7 +747,7 @@ private fun registerPrompts(server: Server) {
                     PromptMessage(
                         role = Role.User,
                         content = TextContent(text),
-                    )
+                    ),
                 ),
         )
     }

@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "2.4.21"
     kotlin("plugin.serialization") version "2.4.21"
-    id("com.ncorti.ktfmt.gradle") version "0.27.0"
+    id("com.ncorti.ktfmt.gradle") version "0.28.0"
     application
 }
 
@@ -89,9 +89,14 @@ tasks.register<Jar>("fatJar") {
     from(sourceSets.main.get().output)
 
     dependsOn(configurations.runtimeClasspath)
-    from({
-        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
-    })
+    from(
+        {
+            configurations.runtimeClasspath
+                .get()
+                .filter { it.name.endsWith("jar") }
+                .map { zipTree(it) }
+        },
+    )
 
     manifest { attributes["Main-Class"] = "mcp.starter.StdioMainKt" }
 }

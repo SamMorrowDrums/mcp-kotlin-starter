@@ -106,7 +106,7 @@ class ServerTest {
         )
         val greeting =
             client.readResource(
-                ReadResourceRequest(ReadResourceRequestParams(uri = "greeting://Kotlin"))
+                ReadResourceRequest(ReadResourceRequestParams(uri = "greeting://Kotlin")),
             )
         assertEquals(
             "Hello, Kotlin! This is a personalized greeting just for you.",
@@ -114,12 +114,12 @@ class ServerTest {
         )
         val about =
             client.readResource(
-                ReadResourceRequest(ReadResourceRequestParams(uri = "about://server"))
+                ReadResourceRequest(ReadResourceRequestParams(uri = "about://server")),
             )
         assertTrue(
             assertIs<TextResourceContents>(about.contents.single())
                 .text
-                .contains("MCP Kotlin Starter v1.0.0")
+                .contains("MCP Kotlin Starter v1.0.0"),
         )
     }
 
@@ -134,8 +134,8 @@ class ServerTest {
                     GetPromptRequestParams(
                         name = "greet",
                         arguments = mapOf("name" to "Kotlin", "style" to "formal"),
-                    )
-                )
+                    ),
+                ),
             )
         assertEquals(
             "Please compose a formal, professional greeting for Kotlin.",
